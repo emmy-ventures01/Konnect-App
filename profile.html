@@ -2,72 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Set Profile | Konnect</title>
+  <title>Profile Setup - Konnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
+<body class="profile-page">
 
-<body class="page">
+  <div class="profile-container">
+    <h1 class="profile-title">Set up your profile</h1>
+    <p class="profile-subtitle">
+      Enter your name and optionally add a profile picture.
+    </p>
 
-  <h2>Create your profile</h2>
+    <input type="text" id="username" placeholder="Enter your username" class="profile-input">
 
-  <input type="text" id="username" placeholder="Enter your username">
+    <label for="profile-pic" class="profile-pic-label">
+      Add Profile Picture (optional)
+    </label>
+    <input type="file" id="profile-pic" accept="image/*" class="profile-input">
 
-  <input type="file" id="photo" accept="image/*">
-
-  <button onclick="saveProfile()">Continue</button>
+    <button class="profile-btn" onclick="saveProfile()">Next</button>
+  </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
-      authDomain: "konnect-38667.firebaseapp.com",
-      projectId: "konnect-38667",
-      storageBucket: "konnect-38667.firebasestorage.app",
-      messagingSenderId: "687825094848",
-      appId: "1:687825094848:web:7af16061a55d118a3f8525"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = "verify.html";
-      }
-    });
-
     function saveProfile() {
-      const username = document.getElementById("username").value;
-      const photoFile = document.getElementById("photo").files[0];
-
-      if (!username || !photoFile) {
-        alert("Please fill all fields");
+      const username = document.getElementById('username').value.trim();
+      const fileInput = document.getElementById('profile-pic');
+      if (!username) {
+        alert("Please enter your username");
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function () {
-        const base64Image = reader.result;
+      localStorage.setItem("konnectUsername", username);
 
-        const user = auth.currentUser;
-
-        db.collection("users").doc(user.uid).set({
-          username: username,
-          profilePic: base64Image,
-          phone: user.phoneNumber,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          localStorage.setItem("konnectProfilePic", e.target.result);
           window.location.href = "main.html";
-        });
-      };
+        };
+        reader.readAsDataURL(fileInput.files[0]); // convert to base64
+      } else {
+        window.location.href = "main.html"; // Skip profile pic if none
+      }
+    }
 
-      reader.readAsDataURL(photoFile);
+    // Skip profile setup if user already has username
+    if (localStorage.getItem("konnectUsername") && localStorage.getItem("konnectNumber")) {
+      window.location.href = "main.html";
     }
   </script>
 
