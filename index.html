@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Konnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+
+<body class="splash-screen">
+
+  <div class="splash-container">
+    <img src="https://i.postimg.cc/8kWxrg47/Sleek-Gradient-Blue-Konnect-Logo.png" class="logo">
+    <h1>Konnect</h1>
+    <p class="dev-text">Developed by EmmyVentures</p>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
+      authDomain: "konnect-38667.firebaseapp.com",
+      projectId: "konnect-38667",
+      storageBucket: "konnect-38667.firebasestorage.app",
+      messagingSenderId: "687825094848",
+      appId: "1:687825094848:web:7af16061a55d118a3f8525"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // WhatsApp-style logic
+    setTimeout(() => {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          // User already verified before
+          window.location.href = "main.html";
+        } else {
+          // New or logged-out user
+          window.location.href = "verify.html";
+        }
+      });
+    }, 2500); // splash delay
+  </script>
+
+</body>
+</html>
