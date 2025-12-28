@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm PIN - Konnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="password-page">
+
+  <div class="password-container">
+    <h1 class="password-title">Confirm your 4-digit PIN</h1>
+    <p class="password-subtitle">
+      Re-enter your PIN to confirm and secure your account.
+    </p>
+
+    <div class="pin-inputs">
+      <input type="text" maxlength="1" class="pin-box" id="pin1" oninput="moveFocus(this, 'pin2')">
+      <input type="text" maxlength="1" class="pin-box" id="pin2" oninput="moveFocus(this, 'pin3')">
+      <input type="text" maxlength="1" class="pin-box" id="pin3" oninput="moveFocus(this, 'pin4')">
+      <input type="text" maxlength="1" class="pin-box" id="pin4" oninput="moveFocus(this, null)">
+    </div>
+
+    <button class="password-btn" onclick="confirmPin()">Confirm</button>
+  </div>
+
+  <script>
+    function moveFocus(current, nextId) {
+      if(current.value.length >= 1 && nextId) {
+        document.getElementById(nextId).focus();
+      }
+    }
+
+    function confirmPin() {
+      const pin1 = document.getElementById('pin1').value.trim();
+      const pin2 = document.getElementById('pin2').value.trim();
+      const pin3 = document.getElementById('pin3').value.trim();
+      const pin4 = document.getElementById('pin4').value.trim();
+
+      if (!pin1 || !pin2 || !pin3 || !pin4) {
+        alert("Please enter all 4 digits");
+        return;
+      }
+
+      const confirmPin = pin1 + pin2 + pin3 + pin4;
+      const savedPin = localStorage.getItem("konnectPassword");
+
+      if (confirmPin !== savedPin) {
+        alert("PIN does not match! Please try again.");
+        window.location.href = "password.html";
+        return;
+      }
+
+      window.location.href = "profile.html"; // Go to profile setup
+    }
+
+    // Redirect if PIN not set yet
+    if (!localStorage.getItem("konnectPassword")) {
+      window.location.href = "password.html";
+    }
+  </script>
+
+</body>
+</html>
