@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Konnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="main-header">
+    <div class="profile">
+      <img id="profilePic">
+      <span id="username"></span>
+    </div>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="chats">Chats</button>
+    <button class="tab-btn" data-tab="status">Status</button>
+    <button class="tab-btn" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- CHATS -->
+    <div id="chats" class="tab active">
+      <h3>Start Chat</h3>
+
+      <input id="receiverPhone" placeholder="Enter phone number (+234...)">
+      <button onclick="startChat()">Start</button>
+
+      <div id="chatBox" class="hidden">
+        <div id="messages"></div>
+
+        <input id="messageInput" placeholder="Type a message">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div id="status" class="tab">
+      <h3>Status</h3>
+      <input id="statusInput" placeholder="What's on your mind?">
+      <button onclick="postStatus()">Post</button>
+      <div id="statusList"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settings" class="tab">
+      <h3>Settings</h3>
+      <p>Account</p>
+      <p>Privacy</p>
+      <p>Help</p>
+    </div>
+
+  </div>
+
+<script>
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAPvMmKigTlnSgi3qu7jwtRiFMAXJtxpHg",
+  authDomain: "konnect-38667.firebaseapp.com",
+  projectId: "konnect-38667",
+  storageBucket: "konnect-38667.firebasestorage.app",
+  messagingSenderId: "687825094848",
+  appId: "1:687825094848:web:7af16061a55d118a3f8525"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* ================= GLOBAL ================= */
+let currentUser;
+let currentChatId;
+
+/* ================= AUTH ================= */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "verify.html";
+    return;
+  }
+
+  currentUser = user;
+
+  db.collection("users").doc(user.uid).get().then(doc => {
+    document.getElementById("username").textContent = doc.data().username;
+    document.getElementById("profilePic").src = doc.data().profilePic;
+  });
+
+  loadStatuses();
+});
+
+/* ================= LOGOUT ================= */
+document.getElementById("logoutBtn").onclick = () => {
+  auth.signOut().then(() => location.href = "index.html");
+};
+
+/* ================= TABS ================= */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  };
+});
+
+/* ================= CHAT ================= */
+function startChat() {
+  const phone = document.getElementById("receiverPhone").value;
+
+  db.collection("users").where("phone", "==", phone).get().then(snapshot => {
+    if (snapshot.empty) {
+      alert("User not found");
+      return;
+    }
+
+    const otherUser = snapshot.docs[0];
+    const otherUid = otherUser.id;
+
+    currentChatId = [currentUser.uid, otherUid].sort().join("_");
+
+    document.getElementById("chatBox").classList.remove("hidden");
+    loadMessages();
+  });
+}
+
+function sendMessage() {
+  const text = document.getElementById("messageInput").value;
+  if (!text) return;
+
+  db.collection("chats")
+    .doc(currentChatId)
+    .collection("messages")
+    .add({
+      sender: currentUser.uid,
+      text: text,
+      time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  document.getElementById("messageInput").value = "";
+}
+
+function loadMessages() {
+  const messagesDiv = document.getElementById("messages");
+  messagesDiv.innerHTML = "";
+
+  db.collection("chats")
+    .doc(currentChatId)
+    .collection("messages")
+    .orderBy("time")
+    .onSnapshot(snapshot => {
+      messagesDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const msg = document.createElement("div");
+        msg.textContent = doc.data().text;
+        msg.style.margin = "6px 0";
+        msg.style.padding = "10px";
+        msg.style.borderRadius = "8px";
+        msg.style.maxWidth = "70%";
+
+        if (doc.data().sender === currentUser.uid) {
+          msg.style.background = "#0056b3";
+          msg.style.color = "white";
+          msg.style.marginLeft = "auto";
+        } else {
+          msg.style.background = "#ffffff";
+        }
+
+        messagesDiv.appendChild(msg);
+      });
+
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+}
+
+/* ================= STATUS ================= */
+function postStatus() {
+  const text = document.getElementById("statusInput").value;
+  if (!text) return;
+
+  db.collection("status").add({
+    uid: currentUser.uid,
+    text: text,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  document.getElementById("statusInput").value = "";
+}
+
+function loadStatuses() {
+  const list = document.getElementById("statusList");
+  list.innerHTML = "";
+
+  db.collection("status")
+    .orderBy("time", "desc")
+    .onSnapshot(snapshot => {
+      list.innerHTML = "";
+      snapshot.forEach(doc => {
+        const p = document.createElement("p");
+        p.textContent = doc.data().text;
+        list.appendChild(p);
+      });
+    });
+}
+</script>
+
+</body>
+</html>
