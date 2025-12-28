@@ -1,0 +1,133 @@
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== SPLASH SCREEN ===== */
+.splash-screen {
+  background-color: #007BFF;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.splash-container {
+  text-align: center;
+  color: white;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.dev-text {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* ===== COMMON PAGE ===== */
+.page {
+  background-color: #007BFF;
+  min-height: 100vh;
+  color: white;
+  padding: 20px;
+}
+
+.page h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* ===== INPUTS ===== */
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #0056b3;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:active {
+  opacity: 0.9;
+}
+
+/* ===== MAIN APP ===== */
+.main-header {
+  background-color: #0056b3;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.profile img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.tabs {
+  display: flex;
+  background-color: #007BFF;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+.tab-btn.active {
+  border-bottom: 3px solid white;
+}
+
+.content {
+  background-color: #e6f0ff;
+  color: black;
+  min-height: calc(100vh - 120px);
+  padding: 15px;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}
+
+/* ===== UTIL ===== */
+.hidden {
+  display: none;
+}
